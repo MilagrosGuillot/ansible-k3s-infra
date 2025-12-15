@@ -1,0 +1,22 @@
+- name: Instalar y levantar k3s
+  hosts: servidores
+  become: true
+
+  tasks:
+    - name: Descargar instalador de k3s
+      ansible.builtin.get_url:
+        url: https://get.k3s.io
+        dest: /usr/local/bin/k3s-install.sh
+        mode: '0755'
+
+    - name: Ejecutar instalador de k3s
+      ansible.builtin.command:
+        cmd: /usr/local/bin/k3s-install.sh
+        creates: /usr/local/bin/k3s
+
+    - name: Habilitar y levantar servicio k3s
+      ansible.builtin.systemd:
+        name: k3s
+        enabled: true
+        state: started
+

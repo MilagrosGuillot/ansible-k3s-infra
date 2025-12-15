@@ -1,0 +1,15 @@
+- name: Aplicar abracadabra en k3s
+  hosts: servidores
+  become: true
+
+  tasks:
+    - name: Copiar manifiesto abracadabra
+      ansible.builtin.copy:
+        src: abracadabra.yaml
+        dest: /tmp/abracadabra.yaml
+        mode: '0644'
+
+    - name: Aplicar manifiesto en k3s
+      ansible.builtin.command:
+        cmd: /usr/local/bin/k3s kubectl apply -f /tmp/abracadabra.yaml
+

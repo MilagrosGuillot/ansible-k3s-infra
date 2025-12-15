@@ -1,0 +1,49 @@
+- name: playbook de test
+  hosts: servidores
+  become: true
+  tasks: 
+    - name: usuario ansible
+      ansible.builtin.user:
+        name: ansible
+        state: present
+    - name: autorizado
+      ansible.posix.authorized_key:
+        user: ansible
+        key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCqMy2nIfc1f5RtxukxwoKzVQfBkV17JrhMrOAB94q55IrEyFcKxT621Bt2bXrLFrIg83n6Lj6WRnwywWHBD22jPByxU+c9y0N70gQQMBYFufkjF5maqkuj6xtzCwjHlOvGfntQ8dDkNe3tnLIwf2qu31bmdgTawmsp7Y68NvdIXAGWdDjY3LDPNE0/5Zkf/1o2jCrTr8i8IBH1f1sfxQj6scZ++D5WZyD+0qz4bYcvTPUIPRPc8pCBrD8Ff7K1BY25QJ2ztNYqoGQVXNu8MlIlB1uGBbEiKhNnUgvzSinknEp/tgiNwwo8zuGE1H5/zGqhzyx0i44WQHSqaP3vf3mjY3cfJ/ZalXftvrkBhsdfbMWCGAvPH4RrNT4kA1OljeJ9vgi6Hx7658+EWQdS4fhyaZrik9Pxn9cKWxQBRpg/PAe5rdKJdBDKwBa+7tm3Frhwcv7pt7Jg14PSyBwkAQdTQI6nepeZh7wksMc0gBdKoOqyguvrN594+N8oqidAG0E= mili@oracle9
+
+    - name: sudoers
+      community.general.sudoers:
+        name: ansible
+        commands: ALL
+        user: ansible
+        validation: required
+
+    - name: hostname
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname  }}"
+
+    - name: apache
+      ansible.builtin.package:
+        name: httpd
+        state: present
+
+    - name: creacion de index.html
+      ansible.builtin.copy:
+        dest: /var/www/html/index.html
+        content: |
+          :D! saludos desde {{ inventory_hostname  }}
+      register: crea_index
+       
+
+    - name: deshabilitar firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: stopped
+        enabled: false   
+
+    - name: habilitar y levantar servicio httpd
+      when: crea_index.changed
+      ansible.builtin.service:
+        name: httpd
+        state: restarted
+        enabled: true 
