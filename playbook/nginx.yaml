@@ -1,0 +1,22 @@
+- name: Nginx  setup
+  hosts: servidores
+  become: true
+
+  tasks:
+    - name: Instalar Nginx
+      ansible.builtin.package:
+        name: nginx
+        state: present
+
+    - name: Crear index.html
+      ansible.builtin.copy:
+        dest: /usr/share/nginx/html/index.html
+        content: |
+          Hola desde {{ inventory_hostname }}
+
+    - name: Habilitar y levantar Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+

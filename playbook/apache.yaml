@@ -1,0 +1,22 @@
+- name: Apache setup
+  hosts: servidores
+  become: true
+
+  tasks:
+    - name: Instalar Apache
+      ansible.builtin.package:
+        name: httpd
+        state: present
+
+    - name: Crear index.html
+      ansible.builtin.copy:
+        dest: /var/www/html/index.html
+        content: |
+          Hola desde {{ inventory_hostname }}
+
+    - name: Habilitar y levantar Apache
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: true
+
